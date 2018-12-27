@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+
+    <!--声明shiro的请求处理对象-->
+    <bean id="shiroFilterFactoryBean" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+        <!--指定安全管理器-->
+        <property name="securityManager" ref="securityManager"/>
+        <!--登录路径-->
+        <property name="loginUrl" value="/login.jsp"/>
+        <!--过滤器链的定义-->
+        <property name="filterChainDefinitions">
+            <value>
+                /login.jsp= anon
+                /admin/login=anon<!--管理员登录方法-->
+                /css/**= anon
+                /js/**= anon
+                /img/**=anon
+                /script/**=anon
+                /admin/captcha=anon<!--验证码-->
+                <!--/main/main.jsp=authc-->
+                <!--拦截所有-->
+                /**=user[admin]
+            </value>
+        </property>
+    </bean>
+    <!--创建安全管理器-->
+    <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+        <!--注入之定义数据源类-->
+        <property name="realms">
+            <!--给realms添加集合数据-->
+            <list>
+                <ref bean="realm"/>
+            </list>
+        </property>
+        <!--注入记住我的管理器-->
+        <property name="rememberMeManager" ref="cookieRememberMeManager"/>
+    </bean>
+
+    <!--声明记住我的管理器-->
+    <bean id="cookieRememberMeManager" class="org.apache.shiro.web.mgt.CookieRememberMeManager">
+        <property name="cookie" ref="cookie"/>
+    </bean>
+    <!--记住我使用的cookie对象 -->
+    <bean id="cookie" class="org.apache.shiro.web.servlet.SimpleCookie">
+        <!--初始化cookie属性-->
+        <property name="maxAge" value="604800"/>
+        <property name="name" value="rememberme"/>
+        <!--有效范围  /  整个项目有效-->
+        <property name="path" value="/"/>
+    </bean>
+
+    <!--指定数据源类的路径-->
+    <bean id="realm" class="com.baizhi.realm.Realm"/>
+
+
+    <!--开启包扫描-->
+    <context:component-scan base-package="com.baizhi.service"/>
+
+    <!--引入小配置文件-->
+    <context:property-placeholder location="classpath:jdbc.properties"/>
+
+
+    <!--创建数据源对象-->
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+        <property name="driverClassName" value="${driverClassName}"/>
+        <property name="url" value="${url}"/>
+        <property name="username" value="${user}"/>
+        <property name="password" value="${password}"/>
+    </bean>
+
+    <!--创建工厂 同时给实体类别名-->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="mapperLocations" value="classpath:com/baizhi/mapper/*.xml"/>
+        <!--实体类别名-->
+        <property name="typeAliasesPackage" value="com.baizhi.entity"/>
+    </bean>
+
+    <!--创建dao-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+        <property name="basePackage" value="com.baizhi.dao"/>
+    </bean>
+
+    <!--创建实物管理-->
+    <bean id="transactionManager" class=" org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <!--开启注解生效-->
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+</beans>

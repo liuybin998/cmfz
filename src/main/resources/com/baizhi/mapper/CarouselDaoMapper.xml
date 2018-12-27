@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.baizhi.dao.CarouselDao">
+    <!--查询-->
+    <select id="queryAlls" resultType="Carousel">
+        select * from carousel
+        limit #{page},#{rows}
+    </select>
+    <select id="findCounts" resultType="Integer">
+        select count(id) from carousel
+    </select>
+
+
+    <!--删除-->
+    <delete id="delete" parameterType="Carousel">
+        delete from carousel where id = #{id}
+    </delete>
+
+
+
+    <!--修改-->
+    <select id="queryid" resultType="Carousel">
+        select * from carousel where id=#{id}
+    </select>
+
+    <update id="update" parameterType="Carousel">
+        update carousel set headline= #{headline},status= #{status},describ=#{describ}
+        where id = #{id}
+    </update>
+
+    <!--添加-->
+    <insert id="insert" parameterType="Carousel">
+        insert into carousel values (#{id},#{url},#{headline},#{status},#{time},#{describ})
+    </insert>
+
+    <!--关于用户前台查看轮播图-->
+    <select id="queryimg" resultType="Carousel">
+        select * from carousel where status='展示'
+    </select>
+
+
+</mapper>

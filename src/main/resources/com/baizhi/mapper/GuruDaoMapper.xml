@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.baizhi.dao.GuruDao">
+
+    <!--查询-->
+    <select id="queryAll" resultType="Guru">
+        select * from guru
+    </select>
+
+    <!--添加-->
+    <insert id="insert" parameterType="Guru">
+        insert into guru values (#{id},#{name},#{photo},#{state},#{gender})
+    </insert>
+
+    <!--删除-->
+    <delete id="delete" parameterType="Guru">
+        delete from guru where id=#{id}
+    </delete>
+
+    <!--修改-->
+    <select id="queryid" resultType="Guru">
+          select * from guru where id = #{id}
+    </select>
+    <update id="update" parameterType="Guru">
+        update guru set name= #{name},state= #{state},gender=#{gender}
+        where id = #{id}
+    </update>
+
+
+    <select id="queryAlls" resultType="Guru">
+        select * from guru
+        limit #{page},#{rows}
+    </select>
+
+    <select id="findCounts" resultType="Integer">
+        select count(id) from guru
+    </select>
+
+
+</mapper>
